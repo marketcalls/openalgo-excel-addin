@@ -1,0 +1,15 @@
+{
+    "allowCustomDataForDataTypeAny": true,
+    "functions": [
+        {
+            "description": "Fetches funds and margin details from the trading account",
+            "id": "FUNDS",
+            "name": "FUNDS",
+            "parameters": [],
+            "result": {
+                "dimensionality": "matrix",
+                "type": "string"
+            }
+        }
+    ]
+}

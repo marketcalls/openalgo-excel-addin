@@ -17,28 +17,174 @@ An Excel add-in for interacting with OpenAlgo trading API. This add-in provides 
 - npm (comes with Node.js)
 - Microsoft Excel (2016 or later)
 
-## Installation
+## Installing the Add-in
 
-1. Clone the repository:
-```bash
-git clone https://github.com/marketcalls/openalgo-excel-addin.git
-cd openalgo-excel-addin
-```
+### Windows Installation
 
-2. Install dependencies:
-```bash
-npm install
-```
+1. **Prepare the Manifest**:
+   - Download the `manifest.production.xml` file
+   - Rename it to `manifest.xml` (optional)
 
-3. Start the development server:
-```bash
-npm start
-```
-
-4. Sideload the add-in in Excel:
+2. **Method 1: Centralized Deployment (Recommended for Organizations)**:
    - Open Excel
-   - Go to Insert > My Add-ins > Upload My Add-in
-   - Select the manifest file from the project
+   - Go to `File` > `Options` > `Trust Center` > `Trust Center Settings`
+   - Select `Trusted Add-in Catalogs`
+   - Add the catalog URL: `https://excel.openalgo.in`
+   - Click OK and restart Excel
+   - Go to `Insert` > `My Add-ins` > `Shared Folder`
+   - Select "OpenAlgo Excel Add-in"
+
+3. **Method 2: Manual Sideloading**:
+   ```powershell
+   # Create the add-in directory if it doesn't exist
+   $addInFolder = "$env:USERPROFILE\AppData\Local\Microsoft\Office\16.0\Wef"
+   New-Item -ItemType Directory -Force -Path $addInFolder
+
+   # Copy the manifest
+   Copy-Item manifest.production.xml "$addInFolder\manifest.xml"
+   ```
+   Then:
+   - Open Excel
+   - Go to `Insert` > `My Add-ins` > `OPENALGO`
+   - Click to load the add-in
+
+4. **Method 3: Network Share**:
+   - Place the manifest file on a network share
+   - Open Excel
+   - Go to `File` > `Options` > `Trust Center` > `Trust Center Settings`
+   - Click `Trusted Add-in Catalogs`
+   - Add the network share path
+   - Click OK and restart Excel
+   - The add-in will appear in `Insert` > `My Add-ins`
+
+### Troubleshooting Windows Installation
+
+1. **Add-in Not Appearing**:
+   - Verify manifest location:
+     ```powershell
+     dir "$env:USERPROFILE\AppData\Local\Microsoft\Office\16.0\Wef\manifest.xml"
+     ```
+   - Check Excel version (must be 2016 or later)
+   - Clear Office cache:
+     ```powershell
+     Remove-Item "$env:USERPROFILE\AppData\Local\Microsoft\Office\16.0\Wef\*" -Force -Recurse
+     Remove-Item "$env:USERPROFILE\AppData\Local\Microsoft\Office\16.0\WebExtCache\*" -Force -Recurse
+     ```
+
+2. **Security Settings**:
+   - Open Excel
+   - Go to `File` > `Options` > `Trust Center` > `Trust Center Settings`
+   - Enable:
+     - `Allow add-ins to start`
+     - `Allow web add-ins to work on trusted documents`
+     - `Turn on Preview Features`
+
+3. **Network Issues**:
+   - Ensure https://excel.openalgo.in is accessible
+   - Check your firewall settings
+   - Try using a different network connection
+
+4. **Reset if Nothing Works**:
+   ```powershell
+   # Full reset of Office Add-in cache
+   Stop-Process -Name "Excel" -Force -ErrorAction SilentlyContinue
+   Remove-Item "$env:USERPROFILE\AppData\Local\Microsoft\Office\16.0\Wef\*" -Force -Recurse
+   Remove-Item "$env:USERPROFILE\AppData\Local\Microsoft\Office\16.0\WebExtCache\*" -Force -Recurse
+   ```
+   Then:
+   - Restart Excel
+   - Try installing the add-in again
+
+### Quick Installation Script (Windows)
+
+Save this as `install-addin.ps1`:
+```powershell
+# Check if running as administrator
+if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator"))
+{
+    Write-Warning "Please run as administrator"
+    exit
+}
+
+# Create directories
+$wefPath = "$env:USERPROFILE\AppData\Local\Microsoft\Office\16.0\Wef"
+New-Item -ItemType Directory -Force -Path $wefPath
+
+# Copy manifest
+Copy-Item manifest.production.xml "$wefPath\manifest.xml" -Force
+
+# Clear cache
+Remove-Item "$env:USERPROFILE\AppData\Local\Microsoft\Office\16.0\WebExtCache\*" -Force -Recurse -ErrorAction SilentlyContinue
+
+Write-Host "Add-in installed successfully. Please restart Excel."
+```
+
+Run the script:
+```powershell
+powershell -ExecutionPolicy Bypass -File install-addin.ps1
+```
+
+### Mac OS Installation
+
+1. **Create Add-in Directory**:
+   ```bash
+   mkdir -p ~/Library/Containers/com.microsoft.Excel/Data/Documents/wef
+   ```
+
+2. **Copy Manifest**:
+   - Copy the `manifest.xml` file to the wef directory
+   - Make sure to use the production manifest that points to excel.openalgo.in
+   ```bash
+   cp manifest.xml ~/Library/Containers/com.microsoft.Excel/Data/Documents/wef/
+   ```
+
+3. **Open Excel**:
+   - Launch Microsoft Excel
+   - Create a new workbook or open an existing one
+   - If Excel was already open, close and reopen it
+
+4. **Enable Add-in**:
+   - Go to Excel > Preferences
+   - Click 'Security & Privacy'
+   - Check 'Trust access to the Office Add-ins platform'
+   - Click 'OK'
+
+5. **Access the Add-in**:
+   - Go to the 'Insert' tab
+   - Click 'My Add-ins' (Office Add-ins)
+   - Look for "OpenAlgo" in the list
+   - Click to load the add-in
+
+6. **Using the Add-in**:
+   - The taskpane will open on the right
+   - Enter your API configuration
+   - Use the `OPENALGO.FUNDS()` function in any cell
+
+### Troubleshooting Mac Installation
+
+If the add-in doesn't appear:
+1. Verify the manifest.xml is in the correct location:
+   ```bash
+   ls ~/Library/Containers/com.microsoft.Excel/Data/Documents/wef/manifest.xml
+   ```
+
+2. Check manifest.xml content:
+   - Ensure all URLs point to https://excel.openalgo.in/
+   - Verify there are no localhost URLs
+
+3. Excel Security:
+   - Excel > Preferences > Security & Privacy
+   - Ensure all required permissions are granted
+
+4. Clear Office Cache:
+   ```bash
+   rm -rf ~/Library/Containers/com.microsoft.Excel/Data/Library/Caches/*
+   ```
+
+5. Restart Excel:
+   - Completely close Excel
+   - Reopen Excel
+   - Try loading the add-in again
 
 ## Configuration
 

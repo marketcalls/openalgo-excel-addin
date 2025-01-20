@@ -1,0 +1,38 @@
+{
+    "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "builds": [
+        {
+            "src": "dist/**",
+            "use": "@vercel/static"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/assets/(.*)",
+            "dest": "/dist/assets/$1"
+        },
+        {
+            "src": "/(taskpane.html|functions.js|functions.json|polyfill.js)",
+            "dest": "/dist/$1"
+        },
+        {
+            "src": "/(.*)\\.js$",
+            "dest": "/dist/$1.js"
+        },
+        {
+            "src": "/(.*)\\.css$",
+            "dest": "/dist/$1.css"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/dist/$1",
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET, OPTIONS",
+                "Access-Control-Allow-Headers": "X-Requested-With, Content-Type, Accept"
+            }
+        }
+    ]
+}

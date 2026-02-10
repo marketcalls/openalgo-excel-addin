@@ -271,7 +271,7 @@ Smart orders automatically manage position sizing based on the current position.
 **Example Usage:**
 
 ```excel
-=oa_placesmartorder("SmartStrat", "INFY", "BUY", "NSE", "MARKET", "MIS", 10, "", 0, 0, 0)
+=oa_placesmartorder("SmartStrat", "INFY", "BUY", "NSE", "MARKET", "MIS", 10, 10, 0, 0, 0)
 ```
 
 ---

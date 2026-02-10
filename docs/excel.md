@@ -4,167 +4,62 @@
 
 ### Introduction
 
-OpenAlgo provides seamless integration with Microsoft Excel through an Office Web Add-in for fetching trading account information directly in your spreadsheet. The add-in uses custom Excel functions under the `OPENALGO` namespace and a taskpane for API configuration.
-
-This is a cross-platform add-in that works on **Windows**, **Mac**, and **Excel for the Web** (Excel 2016 or later required).
-
----
+OpenAlgo provides seamless integration with Microsoft Excel for executing trading strategies, fetching market data, and managing orders. The desktop add-in is built using Excel-DNA and provides Excel functions under the `oa_` prefix for interacting with the OpenAlgo REST API and WebSocket server.
 
 ## Install the OpenAlgo Excel Add-in
 
-The OpenAlgo Excel Add-in is a web-based Office Add-in hosted at `https://excel.openalgo.in`. Unlike traditional Excel add-ins, there is **no separate 32-bit or 64-bit version** -- a single add-in works across all platforms.
+Before installing, **ensure you select the correct version** based on your Excel installation.
 
-### Prerequisites
+#### Steps to Check Your Excel Version
 
-- Microsoft Excel 2016 or later (Desktop or Web)
+1. Open Microsoft Excel
+2. Click **File** > **Account**
+3. Click **About Excel**
+4. Look for **32-bit** or **64-bit** in the version details
 
-### Windows Installation
+#### Which Version Should You Install?
 
-#### Method 1: Manual Sideloading (Recommended)
+- If your Excel is **64-bit** - Install the **64-bit add-in** (Recommended)
+- If your Excel is **32-bit** - Install the **32-bit add-in**
 
-1. **Download the manifest file**:
-   - Download `manifest.production.xml` from the [GitHub releases page](https://github.com/marketcalls/openalgo-excel-addin/releases)
+**Download the OpenAlgo Excel Add-in:**
 
-2. **Copy to the Office Add-in folder**:
-   ```powershell
-   # Create the add-in directory if it doesn't exist
-   $addInFolder = "$env:USERPROFILE\AppData\Local\Microsoft\Office\16.0\Wef"
-   New-Item -ItemType Directory -Force -Path $addInFolder
+[https://github.com/marketcalls/OpenAlgo-Excel/releases](https://github.com/marketcalls/OpenAlgo-Excel/releases)
 
-   # Copy the manifest
-   Copy-Item manifest.production.xml "$addInFolder\manifest.xml"
-   ```
+### .NET 6 Desktop Runtime Required
 
-3. **Load the add-in in Excel**:
-   - Open Excel
-   - Go to `Insert` > `My Add-ins`
-   - Select **OpenAlgo Excel Add-in**
-   - Click to load
+The OpenAlgo Excel Add-in is built using **Excel-DNA**, which requires the **.NET 6 Desktop Runtime**.
 
-#### Method 2: Trusted Catalog
+If the add-in is not working or Excel does not recognize it, install the .NET 6 Desktop Runtime:
 
-1. Open Excel
-2. Go to `File` > `Options` > `Trust Center` > `Trust Center Settings`
-3. Select `Trusted Add-in Catalogs`
-4. Add the catalog URL: `https://excel.openalgo.in`
-5. Click OK and restart Excel
-6. Go to `Insert` > `My Add-ins` > `Shared Folder`
-7. Select **OpenAlgo Excel Add-in**
+[Download .NET 6 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
 
-#### Method 3: Network Share
-
-1. Place the `manifest.production.xml` file on a network share
-2. Open Excel > `File` > `Options` > `Trust Center` > `Trust Center Settings`
-3. Click `Trusted Add-in Catalogs`
-4. Add the network share path
-5. Click OK and restart Excel
-6. The add-in will appear in `Insert` > `My Add-ins`
-
-#### Quick Installation Script (Windows)
-
-Save and run the following as `install-addin.ps1`:
-
-```powershell
-# Create directories
-$wefPath = "$env:USERPROFILE\AppData\Local\Microsoft\Office\16.0\Wef"
-New-Item -ItemType Directory -Force -Path $wefPath
-
-# Copy manifest
-Copy-Item manifest.production.xml "$wefPath\manifest.xml" -Force
-
-# Clear cache
-Remove-Item "$env:USERPROFILE\AppData\Local\Microsoft\Office\16.0\WebExtCache\*" -Force -Recurse -ErrorAction SilentlyContinue
-
-Write-Host "Add-in installed successfully. Please restart Excel."
-```
-
-Run the script:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File install-addin.ps1
-```
-
-#### Troubleshooting Windows Installation
-
-1. **Add-in Not Appearing**:
-   - Verify the manifest exists:
-     ```powershell
-     dir "$env:USERPROFILE\AppData\Local\Microsoft\Office\16.0\Wef\manifest.xml"
-     ```
-   - Ensure your Excel version is 2016 or later
-   - Clear the Office cache:
-     ```powershell
-     Remove-Item "$env:USERPROFILE\AppData\Local\Microsoft\Office\16.0\Wef\*" -Force -Recurse
-     Remove-Item "$env:USERPROFILE\AppData\Local\Microsoft\Office\16.0\WebExtCache\*" -Force -Recurse
-     ```
-
-2. **Security Settings**:
-   - Go to `File` > `Options` > `Trust Center` > `Trust Center Settings`
-   - Enable:
-     - `Allow add-ins to start`
-     - `Allow web add-ins to work on trusted documents`
-
-3. **Network Issues**:
-   - Ensure `https://excel.openalgo.in` is accessible from your network
-   - Check your firewall settings
-
-4. **Full Reset**:
-   ```powershell
-   Stop-Process -Name "Excel" -Force -ErrorAction SilentlyContinue
-   Remove-Item "$env:USERPROFILE\AppData\Local\Microsoft\Office\16.0\Wef\*" -Force -Recurse
-   Remove-Item "$env:USERPROFILE\AppData\Local\Microsoft\Office\16.0\WebExtCache\*" -Force -Recurse
-   ```
-   Then restart Excel and install the add-in again.
-
----
-
-### Mac Installation
-
-1. **Create the add-in directory**:
-   ```bash
-   mkdir -p ~/Library/Containers/com.microsoft.Excel/Data/Documents/wef
-   ```
-
-2. **Copy the manifest**:
-   ```bash
-   cp manifest.production.xml ~/Library/Containers/com.microsoft.Excel/Data/Documents/wef/manifest.xml
-   ```
-
-3. **Enable add-ins in Excel**:
-   - Open Excel
-   - Go to `Excel` > `Preferences` > `Security & Privacy`
-   - Check `Trust access to the Office Add-ins platform`
-   - Click OK
-
-4. **Load the add-in**:
-   - Go to the `Insert` tab
-   - Click `My Add-ins` (Office Add-ins)
-   - Select **OpenAlgo** from the list
-
-#### Troubleshooting Mac Installation
-
-- Verify the manifest is in the correct location:
-  ```bash
-  ls ~/Library/Containers/com.microsoft.Excel/Data/Documents/wef/manifest.xml
-  ```
-- Clear the Office cache:
-  ```bash
-  rm -rf ~/Library/Containers/com.microsoft.Excel/Data/Library/Caches/*
-  ```
-- Restart Excel completely and try again
+After installing the runtime, restart your system and try loading the add-in again.
 
 ---
 
 ### Configuration
 
-After installing the add-in, you need to configure your OpenAlgo API connection:
+#### Setting API Key, Version, and Host URL
 
-1. Open the add-in taskpane by clicking **Show OpenAlgo** on the Home tab
-2. Enter your **API Host** (default: `http://127.0.0.1:5000`)
-3. Enter your **API Key**
-4. Click **Save Settings**
+**Function:** `oa_api(api_key, [version], [host_url])`
 
-The settings are saved per workbook and will persist across sessions.
+This function must be called first to configure the API connection. All other functions use these stored credentials.
+
+**Parameters:**
+
+| Parameter  | Required | Default                   | Description                |
+|------------|----------|---------------------------|----------------------------|
+| `api_key`  | Yes      | -                         | API key for authentication |
+| `version`  | No       | `"v1"`                    | API version                |
+| `host_url` | No       | `"http://127.0.0.1:5000"` | OpenAlgo server URL        |
+
+**Example Usage:**
+
+```excel
+=oa_api("your_api_key")
+=oa_api("your_api_key", "v1", "http://127.0.0.1:5000")
+```
 
 ---
 
@@ -172,34 +67,601 @@ The settings are saved per workbook and will persist across sessions.
 
 #### Retrieve Funds
 
-**Function:** `OPENALGO.FUNDS()`
+**Function:** `oa_funds()`
 
 **Example Usage:**
 
 ```excel
-=OPENALGO.FUNDS()
+=oa_funds()
 ```
 
-**Returns:** A 2D array (table) with fund and margin details from your trading account:
+**Returns:** A table with available funds and margin details (available cash, collateral, M2M realized/unrealized, utilised debits).
 
-| Field            | Description                        |
-|------------------|------------------------------------|
-| Available Cash   | Cash available for trading         |
-| Collateral       | Collateral value in account        |
-| M2M Realized     | Mark-to-market realized profit/loss |
-| M2M Unrealized   | Mark-to-market unrealized profit/loss |
-| Utilised Debits  | Total debits utilized              |
+---
 
-**Error Handling:** If the API call fails, the function returns `[['Error', '<error message>']]` in the cell range.
+#### Retrieve Order Book
+
+**Function:** `oa_orderbook()`
+
+**Example Usage:**
+
+```excel
+=oa_orderbook()
+```
+
+**Returns:** A table with all orders placed during the session.
+
+---
+
+#### Retrieve Trade Book
+
+**Function:** `oa_tradebook()`
+
+**Example Usage:**
+
+```excel
+=oa_tradebook()
+```
+
+**Returns:** A table with all executed trades.
+
+---
+
+#### Retrieve Position Book
+
+**Function:** `oa_positionbook()`
+
+**Example Usage:**
+
+```excel
+=oa_positionbook()
+```
+
+**Returns:** A table with all open positions.
+
+---
+
+#### Retrieve Holdings
+
+**Function:** `oa_holdings()`
+
+**Example Usage:**
+
+```excel
+=oa_holdings()
+```
+
+**Returns:** A table with all holdings in the demat account.
+
+---
+
+### Market Data Functions
+
+#### Get Market Quotes
+
+**Function:** `oa_quotes(symbol, exchange)`
+
+**Parameters:**
+
+| Parameter  | Required | Description        |
+|------------|----------|--------------------|
+| `symbol`   | Yes      | Trading symbol     |
+| `exchange` | Yes      | Exchange (e.g., NSE, BSE, NFO, MCX) |
+
+**Example Usage:**
+
+```excel
+=oa_quotes("RELIANCE", "NSE")
+```
+
+**Returns:** Market price details for the given symbol (LTP, open, high, low, close, volume, etc.).
+
+---
+
+#### Get Market Depth
+
+**Function:** `oa_depth(symbol, exchange)`
+
+**Parameters:**
+
+| Parameter  | Required | Description        |
+|------------|----------|--------------------|
+| `symbol`   | Yes      | Trading symbol     |
+| `exchange` | Yes      | Exchange           |
+
+**Example Usage:**
+
+```excel
+=oa_depth("RELIANCE", "NSE")
+```
+
+**Returns:** Order book depth showing buy/sell price levels with quantity.
+
+---
+
+#### Fetch Historical Data
+
+**Function:** `oa_history(symbol, exchange, interval, start_date, end_date)`
+
+**Parameters:**
+
+| Parameter    | Required | Description                          |
+|--------------|----------|--------------------------------------|
+| `symbol`     | Yes      | Trading symbol                       |
+| `exchange`   | Yes      | Exchange                             |
+| `interval`   | Yes      | Candle interval (e.g., `"1m"`, `"5m"`, `"15m"`, `"1d"`) |
+| `start_date` | Yes      | Start date in `YYYY-MM-DD` format    |
+| `end_date`   | Yes      | End date in `YYYY-MM-DD` format      |
+
+**Example Usage:**
+
+```excel
+=oa_history("RELIANCE", "NSE", "1m", "2024-12-01", "2024-12-31")
+```
+
+**Returns:** Historical OHLCV (Open, High, Low, Close, Volume) data in a table format.
+
+---
+
+#### Get Supported Intervals
+
+**Function:** `oa_intervals()`
+
+**Example Usage:**
+
+```excel
+=oa_intervals()
+```
+
+**Returns:** A list of all supported candle intervals for historical data.
+
+---
+
+### Order Functions
+
+#### Place an Order
+
+**Function:** `oa_placeorder(strategy, symbol, action, exchange, pricetype, product, [quantity], [price], [trigger_price], [disclosed_quantity])`
+
+**Parameters:**
+
+| Parameter            | Required | Description                              |
+|----------------------|----------|------------------------------------------|
+| `strategy`           | Yes      | Strategy name                            |
+| `symbol`             | Yes      | Trading symbol                           |
+| `action`             | Yes      | `"BUY"` or `"SELL"`                      |
+| `exchange`           | Yes      | Exchange (e.g., NSE, BSE, NFO, MCX)      |
+| `pricetype`          | Yes      | `"MARKET"`, `"LIMIT"`, `"SL"`, `"SL-M"` |
+| `product`            | Yes      | `"MIS"`, `"CNC"`, `"NRML"`              |
+| `quantity`           | No       | Number of shares/lots                    |
+| `price`              | No       | Limit price (required for LIMIT orders)  |
+| `trigger_price`      | No       | Trigger price (required for SL orders)   |
+| `disclosed_quantity`  | No       | Disclosed quantity                       |
+
+**Example Usage:**
+
+```excel
+=oa_placeorder("MyStrategy", "INFY", "BUY", "NSE", "LIMIT", "MIS", 10, 1500, 0, 0)
+```
+
+---
+
+#### Place a Smart Order
+
+**Function:** `oa_placesmartorder(strategy, symbol, action, exchange, pricetype, product, [quantity], [position_size], [price], [trigger_price], [disclosed_quantity])`
+
+Smart orders automatically manage position sizing based on the current position.
+
+**Parameters:**
+
+| Parameter            | Required | Description                              |
+|----------------------|----------|------------------------------------------|
+| `strategy`           | Yes      | Strategy name                            |
+| `symbol`             | Yes      | Trading symbol                           |
+| `action`             | Yes      | `"BUY"` or `"SELL"`                      |
+| `exchange`           | Yes      | Exchange                                 |
+| `pricetype`          | Yes      | `"MARKET"`, `"LIMIT"`, `"SL"`, `"SL-M"` |
+| `product`            | Yes      | `"MIS"`, `"CNC"`, `"NRML"`              |
+| `quantity`           | No       | Number of shares/lots                    |
+| `position_size`      | No       | Target position size                     |
+| `price`              | No       | Limit price                              |
+| `trigger_price`      | No       | Trigger price                            |
+| `disclosed_quantity`  | No       | Disclosed quantity                       |
+
+**Example Usage:**
+
+```excel
+=oa_placesmartorder("SmartStrat", "INFY", "BUY", "NSE", "MARKET", "MIS", 10, "", 0, 0, 0)
+```
+
+---
+
+#### Place a Basket Order
+
+**Function:** `oa_basketorder(strategy, orders)`
+
+Place multiple orders at once by referencing an Excel range containing order details.
+
+**Parameters:**
+
+| Parameter  | Required | Description                                         |
+|------------|----------|-----------------------------------------------------|
+| `strategy` | Yes      | Strategy name                                       |
+| `orders`   | Yes      | Excel range reference containing order rows          |
+
+**Example Usage:**
+
+```excel
+=oa_basketorder("MyStrategy", A2:J5)
+```
+
+The referenced range should contain columns for: symbol, action, exchange, pricetype, product, quantity, price, trigger_price, disclosed_quantity.
+
+---
+
+#### Place a Split Order
+
+**Function:** `oa_splitorder(strategy, symbol, action, exchange, [quantity], [splitsize], [pricetype], [product], [price], [trigger_price], [disclosed_quantity])`
+
+Splits a large order into smaller chunks to reduce market impact.
+
+**Parameters:**
+
+| Parameter            | Required | Default    | Description                     |
+|----------------------|----------|------------|---------------------------------|
+| `strategy`           | Yes      | -          | Strategy name                   |
+| `symbol`             | Yes      | -          | Trading symbol                  |
+| `action`             | Yes      | -          | `"BUY"` or `"SELL"`            |
+| `exchange`           | Yes      | -          | Exchange                        |
+| `quantity`           | No       | -          | Total order quantity            |
+| `splitsize`          | No       | -          | Size of each split chunk        |
+| `pricetype`          | No       | `"MARKET"` | Order type                      |
+| `product`            | No       | `"MIS"`    | Product type                    |
+| `price`              | No       | -          | Limit price                     |
+| `trigger_price`      | No       | -          | Trigger price                   |
+| `disclosed_quantity`  | No       | -          | Disclosed quantity              |
+
+**Example Usage:**
+
+```excel
+=oa_splitorder("MyStrategy", "RELIANCE", "BUY", "NSE", 100, 10, "MARKET", "MIS", 0, 0, 0)
+```
+
+---
+
+#### Modify an Order
+
+**Function:** `oa_modifyorder(strategy, orderid, symbol, action, exchange, [quantity], [pricetype], [product], [price], [trigger_price], [disclosed_quantity])`
+
+**Parameters:**
+
+| Parameter            | Required | Default    | Description                     |
+|----------------------|----------|------------|---------------------------------|
+| `strategy`           | Yes      | -          | Strategy name                   |
+| `orderid`            | Yes      | -          | Order ID to modify              |
+| `symbol`             | Yes      | -          | Trading symbol                  |
+| `action`             | Yes      | -          | `"BUY"` or `"SELL"`            |
+| `exchange`           | Yes      | -          | Exchange                        |
+| `quantity`           | No       | -          | New quantity                    |
+| `pricetype`          | No       | `"MARKET"` | New order type                  |
+| `product`            | No       | `"MIS"`    | New product type                |
+| `price`              | No       | -          | New limit price                 |
+| `trigger_price`      | No       | -          | New trigger price               |
+| `disclosed_quantity`  | No       | -          | New disclosed quantity          |
+
+**Example Usage:**
+
+```excel
+=oa_modifyorder("MyStrategy", "241700000023457", "RELIANCE", "BUY", "NSE", 1, "LIMIT", "MIS", 2500, 0, 0)
+```
+
+---
+
+#### Cancel an Order
+
+**Function:** `oa_cancelorder(strategy, orderid)`
+
+**Parameters:**
+
+| Parameter  | Required | Description      |
+|------------|----------|------------------|
+| `strategy` | Yes      | Strategy name    |
+| `orderid`  | Yes      | Order ID to cancel |
+
+**Example Usage:**
+
+```excel
+=oa_cancelorder("MyStrategy", "241700000023457")
+```
+
+---
+
+#### Cancel All Orders
+
+**Function:** `oa_cancelallorder(strategy)`
+
+Cancels all open orders for the given strategy.
+
+**Parameters:**
+
+| Parameter  | Required | Description      |
+|------------|----------|------------------|
+| `strategy` | Yes      | Strategy name    |
+
+**Example Usage:**
+
+```excel
+=oa_cancelallorder("MyStrategy")
+```
+
+---
+
+#### Close All Open Positions
+
+**Function:** `oa_closeposition(strategy)`
+
+**Parameters:**
+
+| Parameter  | Required | Description      |
+|------------|----------|------------------|
+| `strategy` | Yes      | Strategy name    |
+
+**Example Usage:**
+
+```excel
+=oa_closeposition("MyStrategy")
+```
+
+---
+
+#### Get Order Status
+
+**Function:** `oa_orderstatus(strategy, orderid)`
+
+**Parameters:**
+
+| Parameter  | Required | Description      |
+|------------|----------|------------------|
+| `strategy` | Yes      | Strategy name    |
+| `orderid`  | Yes      | Order ID to check |
+
+**Example Usage:**
+
+```excel
+=oa_orderstatus("MyStrategy", "241700000023457")
+```
+
+---
+
+#### Get Open Position
+
+**Function:** `oa_openposition(strategy, symbol, exchange, product)`
+
+**Parameters:**
+
+| Parameter  | Required | Description      |
+|------------|----------|------------------|
+| `strategy` | Yes      | Strategy name    |
+| `symbol`   | Yes      | Trading symbol   |
+| `exchange` | Yes      | Exchange         |
+| `product`  | Yes      | Product type (MIS, CNC, NRML) |
+
+**Example Usage:**
+
+```excel
+=oa_openposition("MyStrategy", "INFY", "NSE", "MIS")
+```
+
+---
+
+### WebSocket Functions (Real-Time Streaming)
+
+WebSocket functions provide real-time streaming market data. You must first connect to the WebSocket server before using any streaming functions.
+
+#### Connect to WebSocket
+
+**Function:** `oa_ws_connect([url])`
+
+**Parameters:**
+
+| Parameter | Required | Default                  | Description         |
+|-----------|----------|--------------------------|---------------------|
+| `url`     | No       | `"ws://127.0.0.1:8765"` | WebSocket server URL |
+
+**Example Usage:**
+
+```excel
+=oa_ws_connect()
+=oa_ws_connect("ws://127.0.0.1:8765")
+```
+
+---
+
+#### Get Connection Status
+
+**Function:** `oa_ws_status()`
+
+**Example Usage:**
+
+```excel
+=oa_ws_status()
+```
+
+**Returns:** Current WebSocket connection status.
+
+---
+
+#### LTP (Last Traded Price) - Streaming
+
+**Function:** `oa_ws_ltp(symbol, exchange)`
+
+**Parameters:**
+
+| Parameter  | Required | Description        |
+|------------|----------|--------------------|
+| `symbol`   | Yes      | Trading symbol     |
+| `exchange` | Yes      | Exchange           |
+
+**Example Usage:**
+
+```excel
+=oa_ws_ltp("RELIANCE", "NSE")
+```
+
+**Returns:** Real-time last traded price that updates automatically.
+
+---
+
+#### Quotes - Streaming
+
+**Function:** `oa_ws_quote(symbol, exchange)`
+
+**Parameters:**
+
+| Parameter  | Required | Description        |
+|------------|----------|--------------------|
+| `symbol`   | Yes      | Trading symbol     |
+| `exchange` | Yes      | Exchange           |
+
+**Example Usage:**
+
+```excel
+=oa_ws_quote("RELIANCE", "NSE")
+```
+
+**Returns:** Real-time market quote details (LTP, open, high, low, close, volume, etc.) that update automatically.
+
+---
+
+#### Depth - Streaming
+
+**Function:** `oa_ws_depth(symbol, exchange, [depth_level])`
+
+**Parameters:**
+
+| Parameter     | Required | Description                     |
+|---------------|----------|---------------------------------|
+| `symbol`      | Yes      | Trading symbol                  |
+| `exchange`    | Yes      | Exchange                        |
+| `depth_level` | No       | Number of depth levels to show  |
+
+**Example Usage:**
+
+```excel
+=oa_ws_depth("RELIANCE", "NSE")
+=oa_ws_depth("RELIANCE", "NSE", 5)
+```
+
+**Returns:** Real-time order book depth for buy/sell levels that updates automatically.
+
+---
+
+#### Subscribe to WebSocket Feed
+
+**Function:** `oa_ws_subscribe(symbol, exchange, mode, [depth_level])`
+
+Manually subscribe to a specific data feed.
+
+**Parameters:**
+
+| Parameter     | Required | Description                           |
+|---------------|----------|---------------------------------------|
+| `symbol`      | Yes      | Trading symbol                        |
+| `exchange`    | Yes      | Exchange                              |
+| `mode`        | Yes      | Subscription mode (1=LTP, 2=Quote, 3=Depth) |
+| `depth_level` | No       | Number of depth levels                |
+
+**Example Usage:**
+
+```excel
+=oa_ws_subscribe("RELIANCE", "NSE", 1)
+=oa_ws_subscribe("RELIANCE", "NSE", 3, 5)
+```
+
+---
+
+#### Unsubscribe from WebSocket Feed
+
+**Functions:**
+
+```excel
+=oa_ws_unsubscribe("RELIANCE", "NSE", 1)       // Unsubscribe specific mode
+=oa_ws_unsubscribe_ltp("RELIANCE", "NSE")       // Unsubscribe LTP
+=oa_ws_unsubscribe_quote("RELIANCE", "NSE")     // Unsubscribe Quote
+=oa_ws_unsubscribe_depth("RELIANCE", "NSE")     // Unsubscribe Depth
+=oa_ws_unsubscribe_all()                         // Unsubscribe all feeds
+```
+
+---
+
+#### View Active Subscriptions
+
+**Function:** `oa_ws_subscriptions()`
+
+**Example Usage:**
+
+```excel
+=oa_ws_subscriptions()
+```
+
+**Returns:** A table of all active WebSocket subscriptions.
+
+---
+
+#### Get Specific Field from WebSocket Data
+
+**Function:** `oa_ws_field(symbol, exchange, field, [mode])`
+
+Retrieve a specific data field from the WebSocket stream.
+
+**Parameters:**
+
+| Parameter  | Required | Description                           |
+|------------|----------|---------------------------------------|
+| `symbol`   | Yes      | Trading symbol                        |
+| `exchange` | Yes      | Exchange                              |
+| `field`    | Yes      | Field name to retrieve (e.g., `"ltp"`, `"volume"`, `"open"`) |
+| `mode`     | No       | Data mode                             |
+
+**Example Usage:**
+
+```excel
+=oa_ws_field("RELIANCE", "NSE", "ltp")
+=oa_ws_field("RELIANCE", "NSE", "volume", 2)
+```
+
+---
+
+#### Debug WebSocket Data
+
+**Function:** `oa_ws_debug(symbol, exchange, mode)`
+
+Shows raw WebSocket data for debugging purposes.
+
+**Parameters:**
+
+| Parameter  | Required | Description                           |
+|------------|----------|---------------------------------------|
+| `symbol`   | Yes      | Trading symbol                        |
+| `exchange` | Yes      | Exchange                              |
+| `mode`     | Yes      | Data mode (1=LTP, 2=Quote, 3=Depth)  |
+
+**Example Usage:**
+
+```excel
+=oa_ws_debug("RELIANCE", "NSE", 2)
+```
+
+**Returns:** Raw data received from the WebSocket server for the given symbol and mode.
 
 ---
 
 ### Notes
 
-- The add-in requires an active internet connection to load from `https://excel.openalgo.in`
-- Your OpenAlgo server must be accessible from the machine running Excel
-- API settings are stored per workbook -- each workbook can have its own configuration
+- Always call `=oa_api("your_api_key")` first to configure the API connection before using any other functions
 - Test in **OpenAlgo Analyzer Mode** before using in live markets
+- WebSocket functions require the OpenAlgo WebSocket server to be running (default: `ws://127.0.0.1:8765`)
+- All order functions use `strategy` as the first parameter for consistency
 
 ### Support
 
